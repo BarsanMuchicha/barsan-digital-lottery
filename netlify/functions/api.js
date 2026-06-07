@@ -3,22 +3,22 @@ const serverless = require('serverless-http');
 const cors = require('cors');
 
 const app = express();
+const router = express.Router();
 
 // Enable CORS and JSON parsing
 app.use(cors());
 app.use(express.json());
 
-// 🌟 NEW: Browser Landing Routes (Prevents "Cannot GET" errors)
-app.get('/', (req, res) => {
-  res.json({ status: "Online", message: "Barsan Digital Lottery API is working perfectly!" });
-});
-
-app.get('/.netlify/functions/api', (req, res) => {
-  res.json({ status: "Online", message: "Barsan Digital Lottery API is working perfectly!" });
+// 🌟 Base landing route for testing directly in the browser
+router.get('/', (req, res) => {
+  res.json({ 
+    status: "Online", 
+    message: "Barsan Digital Lottery API is running successfully!" 
+  });
 });
 
 // 1. Session Authentication Route
-app.post('/api/auth/telegram', async (req, res) => {
+router.post('/auth/telegram', async (req, res) => {
   try {
     const { initData, startParam } = req.body;
     res.json({
@@ -32,7 +32,7 @@ app.post('/api/auth/telegram', async (req, res) => {
 });
 
 // 2. Fetch Available Pool Route
-app.get('/api/numbers/available', async (req, res) => {
+router.get('/numbers/available', async (req, res) => {
   try {
     const taken = [5, 12, 88];
     const available = [];
@@ -46,7 +46,7 @@ app.get('/api/numbers/available', async (req, res) => {
 });
 
 // 3. Create Orders Route
-app.post('/api/orders/create', async (req, res) => {
+router.post('/orders/create', async (req, res) => {
   try {
     const { numbers } = req.body;
     const mockOrder = {
@@ -60,14 +60,18 @@ app.post('/api/orders/create', async (req, res) => {
 });
 
 // 4. Load My Tickets Route
-app.get('/api/tickets/my', async (req, res) => {
+router.get('/tickets/my', async (req, res) => {
   res.json({ tickets: [] });
 });
 
 // 5. Winners Board Route
-app.get('/api/winners', async (req, res) => {
+router.get('/winners', async (req, res) => {
   res.json({ winners: [] });
 });
+
+// Tell Express to route everything through the Netlify function path base
+app.use('/.netlify/functions/api', router);
+app.use('/', router); // fallback root routing
 
 // Export handler for Netlify Serverless environment
 module.exports.handler = serverless(app);
