@@ -1,0 +1,9 @@
+[build]
+  publish = "."                  # Where your index.html and frontend live
+  functions = "netlify/functions" # Where your backend API code lives
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  
