@@ -1,0 +1,11 @@
+{
+  "name": "barsan-digital-lottery",
+  "version": "1.0.0",
+  "description": "Telegram Mini App Digital Lottery Backend",
+  "main": "netlify/functions/api.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "serverless-http": "^3.2.0"
+  }
+}
