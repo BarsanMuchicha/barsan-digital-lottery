@@ -1,21 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barsan Digital Lottery</title>
-    <!-- Telegram Web App Script -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Supabase CDN Script -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Barsan Digital Lottery</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <h1>Barsan Digital Lottery</h1>
-        <p>Loading your profile...</p>
-    </div>
+  <div id="app-wrapper">
+    <header class="app-header">
+      <div class="brand-container">
+        <h1 class="logo-text">BARSAN DIGITAL LOTTERY</h1>
+        <span class="badge" id="round-state-tag">Syncing...</span>
+      </div>
+    </header>
 
-    <script src="app.js"></script>
+    <main class="viewport-main">
+      
+      <!-- HOME VIEW -->
+      <section id="view-home" class="app-view active">
+        <div class="promo-card">
+          <h2>Grand Weekly Draw</h2>
+          <p>Pick up to 2 unique matching numbers and participate in our transparent rewards payout pool.</p>
+          <div class="prize-pool-grid">
+            <div class="pool-item tier-1"><h3>1st Prize</h3><p>12,000 ETB</p></div>
+            <div class="pool-item tier-2"><h3>2nd Prize</h3><p>3,000 ETB</p></div>
+            <div class="pool-item tier-3"><h3>3rd Prize</h3><p>2,000 ETB</p></div>
+          </div>
+        </div>
+        <div class="action-dock">
+          <button class="btn btn-primary" onclick="switchView('buy')">Buy Tickets Now</button>
+        </div>
+      </section>
+
+      <!-- BUY TICKETS VIEW -->
+      <section id="view-buy" class="app-view">
+        <div class="section-title-wrap">
+          <h2>Select Numbers (Max 2)</h2>
+          <p class="subtitle">Ticket Cost: <strong class="accent">200 ETB</strong></p>
+        </div>
+        <div id="numbers-grid" class="lottery-grid"></div>
+        <div class="sticky-footer-action">
+          <button id="btn-checkout" class="btn btn-primary btn-block" disabled onclick="checkoutSelectedNumbers()">Lock & Proceed</button>
+        </div>
+      </section>
+
+      <!-- PAYMENT VIEW -->
+      <section id="view-payment" class="app-view">
+        <div class="payment-invoice">
+          <h3>Payment Instructions</h3>
+          <p class="warning-note">Complete transaction within 15 minutes to guarantee your numbers.</p>
+          <div class="bank-details-card">
+            <div class="row"><span>Bank:</span><strong>Commercial Bank of Ethiopia (CBE)</strong></div>
+            <div class="row"><span>Account Name:</span><strong>Barsanaol Kumsa</strong></div>
+            <div class="row"><span>Account Number:</span><strong class="copyable" onclick="copyText('1000252837675')">1000252837675 📋</strong></div>
+            <div class="row"><span>Amount Due:</span><strong id="pay-amount-placeholder">0 ETB</strong></div>
+            <div class="row strict">
+              <span>Transfer Reference (Reason):</span>
+              <strong><span id="pay-ref-placeholder">-</span> <span class="copyable" onclick="copyText(document.getElementById('pay-ref-placeholder').innerText)">📋</span></strong>
+            </div>
+          </div>
+          <blockquote class="disclaimer">
+            Our automated SMS Forwarder detects valid payments matching this exact reference code. Do not include spaces or extra characters.
+          </blockquote>
+          <button class="btn btn-secondary btn-block" onclick="switchView('tickets')">View My Tickets Wallet</button>
+        </div>
+      </section>
+
+      <!-- MY TICKETS VIEW -->
+      <section id="view-tickets" class="app-view">
+        <h2>My Digital Wallet</h2>
+        <div id="my-tickets-list" class="tickets-flex-list"></div>
+      </section>
+
+      <!-- WINNERS VIEW -->
+      <section id="view-winners" class="app-view">
+        <h2>Past Round Winners</h2>
+        <div id="winners-board" class="tickets-flex-list"></div>
+      </section>
+
+      <!-- REFERRAL VIEW -->
+      <section id="view-referral" class="app-view">
+        <div class="promo-card ref-card">
+          <h2>Refer & Earn Free Entries</h2>
+          <p>Get 1 free entry ticket for every user you invite after they make their first entry purchase!</p>
+          <div class="ref-stats-row">
+            <div class="stat-box"><span id="ref-count-val">0</span><strong>Successful</strong></div>
+            <div class="stat-box"><span id="ref-free-val">0</span><strong>Free Tickets</strong></div>
+          </div>
+          <div class="invite-link-box">
+            <input type="text" id="share-link-input" readonly value="">
+            <button class="btn btn-accent" onclick="copyText(document.getElementById('share-link-input').value)">Copy Link</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE VIEW -->
+      <section id="view-profile" class="app-view">
+        <div class="profile-card">
+          <div class="avatar-mock" id="prof-avatar">U</div>
+          <h2 id="prof-name">Telegram User</h2>
+          <p id="prof-id-line">ID: -</p>
+          <div class="divider"></div>
+          <button id="admin-panel-trigger" class="btn btn-danger btn-block hide" onclick="switchView('admin')">Open Admin Dashboard</button>
+        </div>
+      </section>
+
+      <!-- ADMIN DASHBOARD VIEW -->
+      <section id="view-admin" class="app-view">
+        <h2>System Control Console</h2>
+        <div class="stats-grid">
+          <div class="stat-tile"><h4 id="adm-users-count">-</h4><p>Total Users</p></div>
+          <div class="stat-tile"><h4 id="adm-tickets-count">-</h4><p>Sold Tickets</p></div>
+        </div>
+        <div class="admin-action-block">
+          <h3>Lottery Operations</h3>
+          <button class="btn btn-success" onclick="adminCreateRound()">Create/Open New Round</button>
+          <button class="btn btn-danger" onclick="adminCloseRound()">Close Current Active Round</button>
+        </div>
+        <div class="admin-action-block draw-box">
+          <h3>Draw Management Setup</h3>
+          <input type="number" id="draw-round-id" placeholder="Round ID">
+          <input type="number" id="draw-1st" placeholder="1st Number (1-100)">
+          <input type="number" id="draw-2nd" placeholder="2nd Number (1-100)">
+          <input type="number" id="draw-3rd" placeholder="3rd Number (1-100)">
+          <button class="btn btn-primary btn-block" onclick="adminSelectWinners()">Execute Winners Matrix</button>
+        </div>
+      </section>
+
+    </main>
+
+    <nav class="navigation-dock">
+      <button class="nav-item active" data-view="home" onclick="switchView('home')">🏠<span>Home</span></button>
+      <button class="nav-item" data-view="buy" onclick="switchView('buy')">🎟️<span>Buy</span></button>
+      <button class="nav-item" data-view="tickets" onclick="switchView('tickets')">💼<span>Tickets</span></button>
+      <button class="nav-item" data-view="winners" onclick="switchView('winners')">🏆<span>Winners</span></button>
+      <button class="nav-item" data-view="profile" onclick="switchView('profile')">👤<span>Profile</span></button>
+    </nav>
+  </div>
 </body>
 </html>
