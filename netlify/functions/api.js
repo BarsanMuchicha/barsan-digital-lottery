@@ -24,7 +24,7 @@ router.post('/auth/telegram', async (req, res) => {
     res.json({
       success: true,
       user: { id: 12345678, first_name: "Lottery Participant" },
-      isAdmin: true
+      isAdmin: true // This will unlock your admin panel once frontend connects!
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -51,7 +51,7 @@ router.post('/orders/create', async (req, res) => {
     const { numbers } = req.body;
     const mockOrder = {
       id: "TXT-" + Math.floor(100000 + Math.random() * 900000),
-      amount: numbers.length * 100
+      amount: numbers.length * 200 // Updated to 200 ETB to match your HTML ticket price
     };
     res.json({ success: true, order: mockOrder });
   } catch (err) {
@@ -69,9 +69,10 @@ router.get('/winners', async (req, res) => {
   res.json({ winners: [] });
 });
 
-// Tell Express to route everything through the Netlify function path base
+// 🚀 CRITICAL FIX: Direct routing layers to handle all deployment variants
 app.use('/.netlify/functions/api', router);
-app.use('/', router); // fallback root routing
+app.use('/api', router); // Added to prevent 404s when app.js calls /api/...
+app.use('/', router); 
 
 // Export handler for Netlify Serverless environment
 module.exports.handler = serverless(app);
