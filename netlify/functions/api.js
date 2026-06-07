@@ -8,21 +8,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 🌟 NEW: Browser Landing Routes (Prevents "Cannot GET" errors)
+app.get('/', (req, res) => {
+  res.json({ status: "Online", message: "Barsan Digital Lottery API is working perfectly!" });
+});
+
+app.get('/.netlify/functions/api', (req, res) => {
+  res.json({ status: "Online", message: "Barsan Digital Lottery API is working perfectly!" });
+});
+
 // 1. Session Authentication Route
 app.post('/api/auth/telegram', async (req, res) => {
   try {
     const { initData, startParam } = req.body;
-    
-    // TODO: Add your Supabase registration/login validation here
-    
-    // Mocking a successful response for testing:
     res.json({
       success: true,
-      user: {
-        id: 12345678,
-        first_name: "Lottery Participant"
-      },
-      isAdmin: true // Temporary true so you can test admin panels
+      user: { id: 12345678, first_name: "Lottery Participant" },
+      isAdmin: true
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -32,18 +34,12 @@ app.post('/api/auth/telegram', async (req, res) => {
 // 2. Fetch Available Pool Route
 app.get('/api/numbers/available', async (req, res) => {
   try {
-    // Mocking an active round with some taken numbers (e.g., 5, 12, 88 are taken)
-    // Available numbers are 1-100 except the taken ones
     const taken = [5, 12, 88];
     const available = [];
     for (let i = 1; i <= 100; i++) {
       if (!taken.includes(i)) available.push(i);
     }
-
-    res.json({
-      available: available,
-      roundId: 12 // Current Active Round Number
-    });
+    res.json({ available: available, roundId: 12 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -53,14 +49,10 @@ app.get('/api/numbers/available', async (req, res) => {
 app.post('/api/orders/create', async (req, res) => {
   try {
     const { numbers } = req.body;
-    const initData = req.headers['authorization'];
-
-    // Generate a quick mock order
     const mockOrder = {
       id: "TXT-" + Math.floor(100000 + Math.random() * 900000),
-      amount: numbers.length * 100 // 100 ETB per ticket
+      amount: numbers.length * 100
     };
-
     res.json({ success: true, order: mockOrder });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -75,23 +67,6 @@ app.get('/api/tickets/my', async (req, res) => {
 // 5. Winners Board Route
 app.get('/api/winners', async (req, res) => {
   res.json({ winners: [] });
-});
-
-// 6. Admin Panel Routes
-app.post('/api/admin/create-round', async (req, res) => {
-  res.json({ success: true });
-});
-
-app.post('/api/admin/close-round', async (req, res) => {
-  res.json({ success: true });
-});
-
-app.post('/api/admin/select-winners', async (req, res) => {
-  res.json({ success: true, winnersCount: 3 });
-});
-
-app.get('/api/admin/dashboard-stats', async (req, res) => {
-  res.json({ totalUsers: 1, activeTickets: 0 });
 });
 
 // Export handler for Netlify Serverless environment
