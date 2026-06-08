@@ -20,7 +20,7 @@
       <section id="view-home" class="app-view active">
         <div class="promo-card">
           <h2>Grand Weekly Draw</h2>
-          <p>Pick up to 2 unique matching numbers and participate in our transparent rewards payout pool.</p>
+          <p>Pick 2 unique matching numbers and participate in our transparent rewards pool.</p>
         </div>
         <div class="action-dock">
           <button class="btn btn-primary btn-block" onclick="switchView('buy')">Buy Tickets Now</button>
@@ -44,21 +44,12 @@
           
           <div class="payment-methods-list">
             <div class="bank-item">
-              <img src="abyssinia.png" alt="BoA" class="bank-logo">
               <div class="bank-details">
                 <strong>Bank of Abyssinia</strong>
                 <span>Acc: <b class="copyable" onclick="copyText('165669398')">165669398 📋</b></span>
               </div>
             </div>
             <div class="bank-item">
-              <img src="coop.png" alt="CBO" class="bank-logo">
-              <div class="bank-details">
-                <strong>Coop Bank of Oromia</strong>
-                <span>Acc: <b class="copyable" onclick="copyText('1012000223249')">1012000223249 📋</b></span>
-              </div>
-            </div>
-            <div class="bank-item">
-              <img src="telebirr.png" alt="Telebirr" class="bank-logo">
               <div class="bank-details">
                 <strong>Telebirr</strong>
                 <span>Number: <b class="copyable" onclick="copyText('0923294064')">0923294064 📋</b></span>
@@ -67,19 +58,17 @@
           </div>
 
           <div class="bank-details-card" style="margin-top: 20px;">
-             <div class="row"><span>Amount Due:</span><strong id="pay-amount-placeholder">200 ETB</strong></div>
+             <div class="row"><span>Amount Due:</span><strong id="pay-amount-placeholder">0 ETB</strong></div>
              <div class="row strict">
                <span>Reference:</span>
-               <strong><span id="pay-ref-placeholder">TICKET-123</span></strong>
+               <strong><span id="pay-ref-placeholder">WAITING...</span></strong>
              </div>
           </div>
-          <button class="btn btn-secondary btn-block" onclick="switchView('tickets')">View My Tickets</button>
         </div>
       </section>
 
       <section id="view-profile" class="app-view">
         <div class="profile-card">
-          <div class="avatar-mock" id="prof-avatar">U</div>
           <h2 id="prof-name">Loading...</h2>
           <p id="prof-id-line">ID: -</p>
           <button id="admin-panel-trigger" class="btn btn-danger btn-block" style="display: none;" onclick="switchView('admin')">Open Admin Dashboard</button>
@@ -88,10 +77,11 @@
 
       <section id="view-admin" class="app-view">
         <h2>System Control Console</h2>
-        <button class="btn btn-success btn-block" onclick="adminCreateRound()">Create/Open New Round</button>
+        <button class="btn btn-success btn-block" onclick="alert('Round Created')">Create New Round</button>
       </section>
+    </main>
 
-    </main><nav class="navigation-dock">
+    <nav class="navigation-dock">
       <button class="nav-item active" data-view="home" onclick="switchView('home')">🏠</button>
       <button class="nav-item" data-view="buy" onclick="switchView('buy')">🎟️</button>
       <button class="nav-item" data-view="profile" onclick="switchView('profile')">👤</button>
