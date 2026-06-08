@@ -162,7 +162,6 @@ body {
   border: 1px solid var(--border-color);
 }
 
-/* FIXED: Changed non-standard padding-vertical to cross-browser safe shorthand padding syntax */
 .bank-details-card .row {
   display: flex;
   justify-content: space-between;
@@ -171,6 +170,47 @@ body {
   font-size: 0.9rem;
 }
 .bank-details-card .row.strict { background: rgba(229,173,6,0.05); padding: 8px; border-radius: 6px; margin-top: 6px;}
+
+/* --- NEW PAYMENT METHOD STYLES --- */
+.payment-methods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.bank-item {
+  display: flex;
+  align-items: center;
+  background-color: var(--card-bg);
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);.bank-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-right: 15px;
+  border-radius: 5px;
+  background: white; /* Ensures visibility even if logo is transparent */
+  padding: 2px;
+}
+
+.bank-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.bank-details strong {
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.bank-details span {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+/* --------------------------------- */
 
 .copyable { color: var(--primary-color); cursor: pointer; }
 
@@ -208,4 +248,5 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
+}
 }
