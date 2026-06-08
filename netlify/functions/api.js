@@ -5,74 +5,68 @@ const cors = require('cors');
 const app = express();
 const router = express.Router();
 
-// Enable CORS and JSON parsing
+// 1. YOUR ADMIN ID - Only this ID will have access to the Admin Dashboard
+const ADMIN_IDS = ['6657645905']; 
+
 app.use(cors());
 app.use(express.json());
 
-// 🌟 Base landing route for testing directly in the browser
+// Security Middleware: Checks if the user is an admin
+const requireAdmin = (req, res, next) => {
+  // Extract the user ID from the Authorization header (sent by your app.js)
+  const userId = req.headers['authorization']; 
+  
+  if (!ADMIN_IDS.includes(userId)) {
+    return res.status(403).json({ error: "Access Denied: You are not an admin." });
+  }
+  next();
+};
+
+// --- ROUTES ---
+
 router.get('/', (req, res) => {
-  res.json({ 
-    status: "Online", 
-    message: "Barsan Digital Lottery API is running successfully!" 
+  res.json({ status: "Online", message: "API is running!" });
+});
+
+// Authentication: Checks if the user is an admin for the UI
+router.post('/auth/telegram', async (req, res) => {
+  const { initData } = req.body;
+  
+  // NOTE: In a production environment, you should validate the initData hash here 
+  // to prevent users from spoofing their IDs. 
+  // For now, this logic assumes you are passing the user ID via your auth process.
+  const userId = req.body.userId || ''; // Ensure your frontend passes this!
+
+  res.json({
+    success: true,
+    user: { id: userId, first_name: "Participant" },
+    isAdmin: ADMIN_IDS.includes(userId) 
   });
 });
 
-// 1. Session Authentication Route
-router.post('/auth/telegram', async (req, res) => {
-  try {
-    const { initData, startParam } = req.body;
-    res.json({
-      success: true,
-      user: { id: 12345678, first_name: "Lottery Participant" },
-      isAdmin: true // This will unlock your admin panel once frontend connects!
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 2. Fetch Available Pool Route
 router.get('/numbers/available', async (req, res) => {
-  try {
-    const taken = [5, 12, 88];
-    const available = [];
-    for (let i = 1; i <= 100; i++) {
-      if (!taken.includes(i)) available.push(i);
-    }
-    res.json({ available: available, roundId: 12 });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  res.json({ available: Array.from({length: 100}, (_, i) => i + 1), roundId: 12 });
 });
 
-// 3. Create Orders Route
-router.post('/orders/create', async (req, res) => {
-  try {
-    const { numbers } = req.body;
-    const mockOrder = {
-      id: "TXT-" + Math.floor(100000 + Math.random() * 900000),
-      amount: numbers.length * 200 // Updated to 200 ETB to match your HTML ticket price
-    };
-    res.json({ success: true, order: mockOrder });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// --- ADMIN ROUTES (Protected by requireAdmin) ---
+
+router.post('/admin/create-round', requireAdmin, async (req, res) => {
+  // Add your logic to start a new round here
+  res.json({ success: true, message: "Round created" });
 });
 
-// 4. Load My Tickets Route
-router.get('/tickets/my', async (req, res) => {
-  res.json({ tickets: [] });
+router.post('/admin/close-round', requireAdmin, async (req, res) => {
+  // Add your logic to close the round here
+  res.json({ success: true, message: "Round closed" });
 });
 
-// 5. Winners Board Route
-router.get('/winners', async (req, res) => {
-  res.json({ winners: [] });
+router.post('/admin/select-winners', requireAdmin, async (req, res) => {
+  // Add your logic to set winners here
+  res.json({ success: true, winnersCount: 3 });
 });
 
-// 🚀 CRITICAL FIX: Direct routing layers to handle all deployment variants
+// 🚀 Deploy Routes
 app.use('/.netlify/functions/api', router);
-app.use('/api', router); // Added to prevent 404s when app.js calls /api/...
-app.use('/', router); 
+app.use('/api', router);
 
-// Export handler for Netlify Serverless environment
 module.exports.handler = serverless(app);
