@@ -2,49 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Barsan Lottery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Barsan Digital Lottery</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root { --bg-color: #0f0f0f; --primary-color: #2481cc; --text-main: #ffffff; }
-    body { background: var(--bg-color); color: var(--text-main); font-family: sans-serif; padding: 20px; }
-    .btn { background: var(--primary-color); color: white; padding: 15px; width: 100%; border: none; border-radius: 8px; margin-top: 10px; }
-    .lottery-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-    .num-node { padding: 20px; background: #1c1c1c; text-align: center; border-radius: 8px; }
-    .selected { background: var(--primary-color); }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Barsan Lottery</h1>
-  <div id="view-buy">
-    <div id="numbers-grid" class="lottery-grid"></div>
-    <button class="btn" onclick="checkout()">Lock & Proceed</button>
+  <div id="app-wrapper">
+    <header class="app-header">
+      <div class="brand-container">
+        <h1 class="logo-text">BARSAN DIGITAL LOTTERY</h1>
+        <span class="badge" id="round-state-tag">Round #12 Active</span>
+      </div>
+    </header>
+
+    <main class="viewport-main">
+      <!-- Home View -->
+      <section id="view-home" class="app-view active">
+        <div class="promo-card">
+          <h2>Grand Weekly Draw</h2>
+          <p>Pick numbers and participate in our transparent rewards pool.</p>
+        </div>
+        <div class="action-dock">
+          <button class="btn btn-primary btn-block" onclick="switchView('buy')">Buy Tickets Now</button>
+        </div>
+      </section>
+
+      <!-- Buy Tickets View -->
+      <section id="view-buy" class="app-view">
+        <div class="section-title-wrap">
+          <h2>Select Numbers</h2>
+          <p>Ticket Price: <b>200 ETB</b></p>
+        </div>
+        <div id="numbers-grid" class="lottery-grid"></div>
+        <div class="sticky-footer-action">
+          <button id="btn-checkout" class="btn btn-primary btn-block" disabled onclick="checkoutSelectedNumbers()">Lock & Proceed</button>
+        </div>
+      </section>
+
+      <!-- Payment View -->
+      <section id="view-payment" class="app-view">
+        <div class="payment-invoice">
+          <h3>Payment Options</h3>
+          <p class="warning-note">Transfer 200 ETB per ticket to <b>Barsanaol Kumsa</b>:</p>
+          
+          <div class="payment-methods-list">
+            <div class="bank-item">
+              <div class="bank-details">
+                <strong>Bank of Abyssinia</strong>
+                <span>Acc: <b class="copyable" onclick="copyText('165669398')">165669398 📋</b></span>
+              </div>
+            </div>
+            <div class="bank-item">
+              <div class="bank-details">
+                <strong>Coop Bank of Oromia</strong>
+                <span>Acc: <b class="copyable" onclick="copyText('1012000223249')">1012000223249 📋</b></span>
+              </div>
+            </div>
+            <div class="bank-item">
+              <div class="bank-details">
+                <strong>Telebirr</strong>
+                <span>Number: <b class="copyable" onclick="copyText('0923294064')">0923294064 📋</b></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bank-details-card" style="margin-top: 20px;">
+             <div class="row"><span>Amount Due:</span><strong id="pay-amount-placeholder">0 ETB</strong></div>
+             <div class="row strict">
+               <span>Use this exact Reference:</span>
+               <strong id="pay-ref-placeholder" style="color: var(--tg-theme-button-color);">WAITING...</strong>
+             </div>
+          </div>
+          <button class="btn btn-secondary btn-block" onclick="switchView('home')">Back to Home</button>
+        </div>
+      </section>
+
+      <!-- My Tickets View -->
+      <section id="view-tickets" class="app-view">
+        <h2>My Tickets</h2>
+        <div id="tickets-list" class="tickets-container">
+           <!-- Tickets will be injected here by app.js -->
+        </div>
+        <button class="btn btn-secondary btn-block" onclick="switchView('home')">Back to Home</button>
+      </section>
+
+      <!-- Profile/Admin View -->
+      <section id="view-profile" class="app-view">
+        <div class="profile-card">
+          <h2 id="prof-name">Loading...</h2>
+          <p id="prof-id-line">ID: -</p>
+          <button id="admin-panel-trigger" class="btn btn-danger btn-block" style="display: none;" onclick="switchView('admin')">Open Admin Dashboard</button>
+        </div>
+      </section>
+    </main><!-- Navigation -->
+    <nav class="navigation-dock">
+      <button class="nav-item active" data-view="home" onclick="switchView('home')">🏠</button>
+      <button class="nav-item" data-view="buy" onclick="switchView('buy')">🎟️</button>
+      <button class="nav-item" data-view="tickets" onclick="switchView('tickets')">📜</button>
+      <button class="nav-item" data-view="profile" onclick="switchView('profile')">👤</button>
+    </nav>
   </div>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    const user = tg.initDataUnsafe.user || { id: 'anonymous' };
-
-    // Render Grid
-    const grid = document.getElementById('numbers-grid');
-    for(let i=1; i<=25; i++) {
-        const div = document.createElement('div');
-        div.className = 'num-node'; div.innerText = i;
-        div.onclick = () => div.classList.toggle('selected');
-        grid.appendChild(div);
-    }
-
-    async function checkout() {
-        const selected = Array.from(document.querySelectorAll('.selected')).map(el => el.innerText);
-        const res = await fetch('/api/orders/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': tg.initData },
-            body: JSON.stringify({ userId: user.id, roundId: 12, numbers: selected, amount: 200 })
-        });
-        const data = await res.json();
-        alert('Order Created: ' + data.orderId);
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
