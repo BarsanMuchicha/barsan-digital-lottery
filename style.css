@@ -1,24 +1,29 @@
 :root {
-  --bg-color: #121214;
-  --card-bg: #1a1a1e;
+  --bg-color: #0f0f0f;
+  --card-bg: #1c1c1c;
   --primary-color: #2481cc;
-  --accent-color: #e5ad06;
+  --accent-color: #ff9500;
+  --success-color: #34c759;
+  --danger-color: #ff3b30;
   --text-main: #ffffff;
   --text-muted: #8e8e93;
-  --border-color: #2c2c35;
+  --border-color: #2c2c2e;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
 
 body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 85px; }
 
 #app-wrapper { min-height: 100vh; }
 
-.app-header { background-color: var(--card-bg); padding: 16px; border-bottom: 1px solid var(--border-color); }
-
+/* Navigation and Layout */
+.app-header { background-color: var(--card-bg); padding: 16px; border-bottom: 1px solid var(--border-color); text-align: center; }
 .app-view { display: none; padding: 16px; }
-.app-view.active { display: block; }
+.app-view.active { display: block; animation: fadeIn 0.2s ease-in; }
 
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Numbers Grid */
 .lottery-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -29,25 +34,45 @@ body { background-color: var(--bg-color); color: var(--text-main); padding-botto
 .num-node {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 12px;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.num-node.selected { background-color: var(--primary-color); border-color: white; }
+.num-node.available { color: var(--text-main); }
+.num-node.selected { background-color: var(--primary-color); border-color: var(--primary-color); color: white; }
+.num-node.pending { background-color: var(--accent-color); color: black; border-color: var(--accent-color); }
+.num-node.taken { background-color: var(--border-color); color: var(--text-muted); cursor: not-allowed; opacity: 0.6; }
 
-.btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+/* Buttons & Forms */
+.btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; font-size: 16px; transition: opacity 0.2s; }
+.btn:active { opacity: 0.8; }
 .btn-primary { background-color: var(--primary-color); color: white; }
+.btn-secondary { background-color: var(--border-color); color: white; margin-top: 10px; }
 .btn-block { margin-top: 10px; }
 
+/* Payment & Cards */
+.payment-methods-list { margin-top: 15px; }
+.bank-item { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); }
+.bank-details { display: flex; flex-direction: column; gap: 5px; }
+.copyable { color: var(--primary-color); cursor: pointer; text-decoration: underline; }
+
+.bank-details-card { background: #262626; padding: 16px; border-radius: 12px; border-left: 4px solid var(--primary-color); }
+.row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+
+.tickets-container { margin-top: 20px; }
+.ticket-card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); }
+
+/* Navigation Dock */
 .navigation-dock {
   position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
-  background-color: var(--card-bg); border-top: 1px solid var(--border-color);
+  background-color: #1c1c1c; border-top: 1px solid var(--border-color);
   display: flex; justify-content: space-around; align-items: center;
 }
-
-.nav-item { background: none; border: none; color: var(--text-muted); cursor: pointer; }
+.nav-item { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px; padding: 10px; }
 .nav-item.active { color: var(--primary-color); }
