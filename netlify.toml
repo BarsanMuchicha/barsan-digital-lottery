@@ -2,9 +2,24 @@
   publish = "."
   functions = "netlify/functions"
 
+# Note: Add these variables in your Netlify Dashboard:
+# Site Settings > Build & deploy > Environment
+# This block is for reference/documentation.
+[build.environment]
+  SUPABASE_URL = ""
+  SUPABASE_ANON_KEY = ""
+  TELEGRAM_BOT_TOKEN = ""
+  TELEGRAM_CHAT_ID = ""
+  SMS_WEBHOOK_SECRET = ""
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/sms-webhook"
+  to = "/.netlify/functions/sms-webhook"
   status = 200
 
 [functions]
