@@ -2,91 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Barsan Digital Lottery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Barsan Lottery</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    :root { --bg-color: #0f0f0f; --primary-color: #2481cc; --text-main: #ffffff; }
+    body { background: var(--bg-color); color: var(--text-main); font-family: sans-serif; padding: 20px; }
+    .btn { background: var(--primary-color); color: white; padding: 15px; width: 100%; border: none; border-radius: 8px; margin-top: 10px; }
+    .lottery-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .num-node { padding: 20px; background: #1c1c1c; text-align: center; border-radius: 8px; }
+    .selected { background: var(--primary-color); }
+  </style>
 </head>
 <body>
-  <div id="app-wrapper">
-    <header class="app-header">
-      <div class="brand-container">
-        <h1 class="logo-text">BARSAN DIGITAL LOTTERY</h1>
-        <span class="badge" id="round-state-tag">Syncing...</span>
-      </div>
-    </header>
-
-    <main class="viewport-main">
-      <section id="view-home" class="app-view active">
-        <div class="promo-card">
-          <h2>Grand Weekly Draw</h2>
-          <p>Pick 2 unique matching numbers and participate in our transparent rewards pool.</p>
-        </div>
-        <div class="action-dock">
-          <button class="btn btn-primary btn-block" onclick="switchView('buy')">Buy Tickets Now</button>
-        </div>
-      </section>
-
-      <section id="view-buy" class="app-view">
-        <div class="section-title-wrap">
-          <h2>Select Numbers</h2>
-        </div>
-        <div id="numbers-grid" class="lottery-grid"></div>
-        <div class="sticky-footer-action">
-          <button id="btn-checkout" class="btn btn-primary btn-block" disabled onclick="checkoutSelectedNumbers()">Lock & Proceed</button>
-        </div>
-      </section>
-
-      <section id="view-payment" class="app-view">
-        <div class="payment-invoice">
-          <h3>Payment Options</h3>
-          <p class="warning-note">Transfer to any of the following accounts:</p>
-          
-          <div class="payment-methods-list">
-            <div class="bank-item">
-              <div class="bank-details">
-                <strong>Bank of Abyssinia</strong>
-                <span>Acc: <b class="copyable" onclick="copyText('165669398')">165669398 📋</b></span>
-              </div>
-            </div>
-            <div class="bank-item">
-              <div class="bank-details">
-                <strong>Telebirr</strong>
-                <span>Number: <b class="copyable" onclick="copyText('0923294064')">0923294064 📋</b></span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bank-details-card" style="margin-top: 20px;">
-             <div class="row"><span>Amount Due:</span><strong id="pay-amount-placeholder">0 ETB</strong></div>
-             <div class="row strict">
-               <span>Reference:</span>
-               <strong><span id="pay-ref-placeholder">WAITING...</span></strong>
-             </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="view-profile" class="app-view">
-        <div class="profile-card">
-          <h2 id="prof-name">Loading...</h2>
-          <p id="prof-id-line">ID: -</p>
-          <button id="admin-panel-trigger" class="btn btn-danger btn-block" style="display: none;" onclick="switchView('admin')">Open Admin Dashboard</button>
-        </div>
-      </section>
-
-      <section id="view-admin" class="app-view">
-        <h2>System Control Console</h2>
-        <button class="btn btn-success btn-block" onclick="alert('Round Created')">Create New Round</button>
-      </section>
-    </main>
-
-    <nav class="navigation-dock">
-      <button class="nav-item active" data-view="home" onclick="switchView('home')">🏠</button>
-      <button class="nav-item" data-view="buy" onclick="switchView('buy')">🎟️</button>
-      <button class="nav-item" data-view="profile" onclick="switchView('profile')">👤</button>
-    </nav>
+  <h1>Barsan Lottery</h1>
+  <div id="view-buy">
+    <div id="numbers-grid" class="lottery-grid"></div>
+    <button class="btn" onclick="checkout()">Lock & Proceed</button>
   </div>
-  <script src="app.js"></script>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    const user = tg.initDataUnsafe.user || { id: 'anonymous' };
+
+    // Render Grid
+    const grid = document.getElementById('numbers-grid');
+    for(let i=1; i<=25; i++) {
+        const div = document.createElement('div');
+        div.className = 'num-node'; div.innerText = i;
+        div.onclick = () => div.classList.toggle('selected');
+        grid.appendChild(div);
+    }
+
+    async function checkout() {
+        const selected = Array.from(document.querySelectorAll('.selected')).map(el => el.innerText);
+        const res = await fetch('/api/orders/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': tg.initData },
+            body: JSON.stringify({ userId: user.id, roundId: 12, numbers: selected, amount: 200 })
+        });
+        const data = await res.json();
+        alert('Order Created: ' + data.orderId);
+    }
+  </script>
 </body>
 </html>
